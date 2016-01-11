@@ -1,0 +1,17 @@
+[package]
+name = "rshakai"
+version = "0.1.0"
+authors = ["Hideo Hattori <hattori-h@klab.com>"]
+
+[dependencies]
+getopts = "*"
+hyper = "*"
+yaml-rust = "*"
+time = "*"
+
+[dependencies.url]
+git = "https://github.com/servo/rust-url"
+
+[[bin]]
+name = "rshakai"
+path = "src/main.rs"
