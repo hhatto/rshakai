@@ -6,7 +6,6 @@ use getopts::Options;
 use hyper::Client;
 use hyper::status::StatusCode;
 use hyper::client::response::Response;
-use hyper::header::Connection;
 use url::{Url, UrlParser};
 use std::{env, thread};
 use std::time::Duration;
