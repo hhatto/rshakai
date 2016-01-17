@@ -82,6 +82,11 @@ fn exec_worker(rx: Receiver<Option<WorkerOption>>) {
     }
 }
 
+fn print_usage(opts: Options) {
+    print!("{}",
+           opts.usage("Usage: rshakai [options] CONFIG_FILE.yaml"));
+}
+
 fn main() {
     let mut opt = HakaiOption {
         max_concurrency: 1,
@@ -97,8 +102,7 @@ fn main() {
     let matches = match opts.parse(&args[1..]) {
         Ok(m) => m,
         Err(_) => {
-            print!("{}",
-                   opts.usage("Usage: rshakai [options] CONFIG_FILE.yaml"));
+            print_usage(opts);
             return;
         }
     };
@@ -116,7 +120,7 @@ fn main() {
     let config_file = if !matches.free.is_empty() {
         matches.free[0].clone()
     } else {
-        // TODO: usage
+        print_usage(opts);
         return;
     };
 
