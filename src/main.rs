@@ -97,7 +97,7 @@ fn main() {
 
     let mut opts = Options::new();
     opts.optopt("c", "max-request", "max concurrency request", "C");
-    opts.optopt("n", "loop", "max concurrency request", "C");
+    opts.optopt("n", "loop", "scenario exec N-loop", "N");
     opts.optflag("v", "verbose", "verbose log");
     let matches = match opts.parse(&args[1..]) {
         Ok(m) => m,
