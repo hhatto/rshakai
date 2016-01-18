@@ -2,6 +2,7 @@ extern crate rshakai;
 extern crate getopts;
 extern crate hyper;
 extern crate url;
+extern crate time;
 use getopts::Options;
 use hyper::Client;
 use hyper::status::StatusCode;
@@ -11,6 +12,8 @@ use std::{env, thread};
 use std::time::Duration;
 use std::io::prelude::*;
 use std::sync::mpsc::{channel, Sender, Receiver};
+use time::now;
+use std::sync::atomic::{AtomicUsize, Ordering, ATOMIC_USIZE_INIT};
 
 use rshakai::{config, indicator};
 
@@ -27,6 +30,8 @@ struct WorkerOption {
     indicator_tx: Sender<Option<bool>>,
 }
 
+static ALL_MSEC: AtomicUsize = ATOMIC_USIZE_INIT;
+
 fn get_request() -> Client {
     let mut client = Client::new();
     let timeout: Option<Duration> = Some(Duration::new(1, 0));
@@ -39,17 +44,25 @@ fn hakai(url: url::Url, options: &HakaiOption, action: &config::Action) -> bool 
     let client = get_request();
     let url = &url.to_string();
     let mut res: Response;
+
+    let t1 = time::now();
     if action.method.to_uppercase() == "POST" {
         res = client.post(url).send().unwrap();
     } else {
         res = client.get(url).send().unwrap();
     }
+    let t2 = time::now();
+    let diff = (t2 - t1).num_milliseconds() as f32;
+    ALL_MSEC.fetch_add(diff as usize, Ordering::SeqCst);
 
     let mut body = String::new();
     res.read_to_string(&mut body).unwrap();
 
     if options.verbose {
-        println!("Response: url={}, body_size={}", url, body.len());
+        println!("Response: url={}, delta={}[msec], body_size={}[byte]",
+                 url,
+                 diff,
+                 body.len());
     }
 
     if res.status != StatusCode::Ok {
@@ -167,4 +180,8 @@ fn main() {
     // exit for indicator
     tx.send(None).unwrap();
     indicator_handler.join().unwrap();
+
+    // TODO: valid average response time
+    let a = ALL_MSEC.fetch_add(0, Ordering::SeqCst);
+    println!("all: {}", a as f32);
 }
