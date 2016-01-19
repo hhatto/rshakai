@@ -4,6 +4,7 @@ use std::io::prelude::*;
 use std::error::Error;
 use std::fs::File;
 use std::path::Path;
+use std::collections::HashMap;
 
 #[derive(Clone)]
 pub struct Action {
@@ -18,6 +19,7 @@ pub struct HakaiConfig {
     pub domain: String,
     pub user_agent: String,
     pub actions: Vec<Action>,
+    pub consts: HashMap<String, String>,
 }
 
 impl HakaiConfig {
@@ -26,6 +28,7 @@ impl HakaiConfig {
             domain: "http://localhost:8888/".to_string(),
             user_agent: "rshakai/0.1".to_string(),
             actions: vec![],
+            consts: HashMap::new(),
         }
     }
 
@@ -61,6 +64,15 @@ impl HakaiConfig {
                     }
                 }
                 self.actions.push(a);
+            }
+        }
+
+        let consts = &doc["consts"];
+        if !consts.is_badvalue() {
+            let consts = consts.as_hash().unwrap();
+            for (k, v) in consts {
+                self.consts.insert(k.as_str().unwrap().to_string(),
+                                   v.as_str().unwrap().to_string());
             }
         }
     }
