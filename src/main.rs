@@ -14,8 +14,10 @@ use std::io::prelude::*;
 use std::sync::mpsc::{channel, Sender, Receiver};
 use time::now;
 use std::sync::atomic::{AtomicUsize, Ordering, ATOMIC_USIZE_INIT};
+use std::collections::HashMap;
 
 use rshakai::{config, indicator};
+use rshakai::config::replace_names;
 
 #[derive(Clone, Copy)]
 struct HakaiOption {
@@ -77,7 +79,15 @@ fn hakai_scenario(options: HakaiOption, conf: config::HakaiConfig, tx: Sender<Op
     for action in &conf.actions {
         let host = Url::parse(&conf.domain).unwrap();
         let path = &action.path.to_string();
-        let url = UrlParser::new().base_url(&host).parse(path).unwrap();
+        let mut url = UrlParser::new().base_url(&host).parse(path).unwrap();
+        if !conf.query_params.is_empty() {
+            let mut new_params = HashMap::new();
+            let query_params = conf.query_params.clone();
+            for (k, v) in query_params {
+                new_params.insert(k, replace_names(&*v, &conf.consts));
+            }
+            url.set_query_from_pairs(new_params);
+        }
         tx.send(Some(hakai(url, o, action))).unwrap();
     }
 }
