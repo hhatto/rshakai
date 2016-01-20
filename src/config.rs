@@ -1,10 +1,14 @@
 extern crate yaml_rust;
+extern crate regex;
+use regex::{Regex, Captures};
 use yaml_rust::YamlLoader;
 use std::io::prelude::*;
 use std::error::Error;
 use std::fs::File;
 use std::path::Path;
 use std::collections::HashMap;
+
+static RE: &'static str = r"%\((?P<val>.+?)\)%";
 
 #[derive(Clone)]
 pub struct Action {
@@ -20,6 +24,7 @@ pub struct HakaiConfig {
     pub user_agent: String,
     pub actions: Vec<Action>,
     pub consts: HashMap<String, String>,
+    pub query_params: HashMap<String, String>,
 }
 
 impl HakaiConfig {
@@ -29,6 +34,7 @@ impl HakaiConfig {
             user_agent: "rshakai/0.1".to_string(),
             actions: vec![],
             consts: HashMap::new(),
+            query_params: HashMap::new(),
         }
     }
 
@@ -75,6 +81,15 @@ impl HakaiConfig {
                                    v.as_str().unwrap().to_string());
             }
         }
+
+        let query_params = &doc["query_params"];
+        if !query_params.is_badvalue() {
+            let query_params = query_params.as_hash().unwrap();
+            for (k, v) in query_params {
+                self.query_params.insert(k.as_str().unwrap().to_string(),
+                                         v.as_str().unwrap().to_string());
+            }
+        }
     }
 
     pub fn load(&mut self, filename: String) {
@@ -92,4 +107,21 @@ impl HakaiConfig {
             Ok(_) => self.parse_yaml(&s),
         };
     }
+}
+
+pub fn replace_names(input: &str, consts: &HashMap<String, String>) -> String {
+    let re = Regex::new(RE).unwrap();
+
+    let result = re.replace_all(input, |caps: &Captures| {
+        let mut s = String::new();
+        let org = caps.at(0).unwrap();
+        let vvv = caps.at(1).unwrap();
+        match consts.get(vvv) {
+            Some(vv) => s.push_str(vv),
+            None => s.push_str(org),
+        }
+        s
+    });
+
+    result
 }

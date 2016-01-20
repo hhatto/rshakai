@@ -8,6 +8,7 @@ getopts = "*"
 hyper = "*"
 yaml-rust = "*"
 time = "*"
+regex = "*"
 
 [dependencies.url]
 git = "https://github.com/servo/rust-url"
