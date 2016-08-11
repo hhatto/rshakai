@@ -5,9 +5,11 @@ extern crate url;
 extern crate time;
 use getopts::Options;
 use hyper::Client;
+use hyper::method;
 use hyper::status::StatusCode;
 use hyper::client::response::Response;
 use url::Url;
+use std::str::FromStr;
 use std::{env, thread};
 use std::time::Duration;
 use std::io::prelude::*;
@@ -46,11 +48,10 @@ fn hakai(url: url::Url, options: &HakaiOption, action: &config::Action) -> bool 
     let mut res: Response;
 
     let t1 = time::now();
-    if action.method.to_uppercase() == "POST" {
-        res = client.post(url).send().unwrap();
-    } else {
-        res = client.get(url).send().unwrap();
-    }
+    res = client.request(method::Method::from_str(action.method.to_uppercase().as_str()).unwrap(),
+                 url)
+        .send()
+        .unwrap();
     let t2 = time::now();
     let diff = (t2 - t1).num_milliseconds() as f32;
     ALL_MSEC.fetch_add(diff as usize, Ordering::SeqCst);
