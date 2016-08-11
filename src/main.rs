@@ -13,7 +13,6 @@ use std::time::Duration;
 use std::io::prelude::*;
 use std::sync::mpsc::{channel, Sender, Receiver};
 use std::sync::atomic::{AtomicUsize, Ordering, ATOMIC_USIZE_INIT};
-use std::collections::HashMap;
 
 use rshakai::{config, indicator};
 use rshakai::config::replace_names;
@@ -80,12 +79,12 @@ fn hakai_scenario(options: HakaiOption, conf: config::HakaiConfig, tx: Sender<Op
         let path = &action.path.to_string();
         let mut url = host.join(path).unwrap();
         if !conf.query_params.is_empty() {
-            let mut new_params = HashMap::new();
             let query_params = conf.query_params.clone();
             for (k, v) in query_params {
-                new_params.insert(k, replace_names(&*v, &conf.consts));
+                url.query_pairs_mut()
+                    .clear()
+                    .append_pair(k.as_str(), replace_names(&*v, &conf.consts).as_str());
             }
-            url.set_query_from_pairs(new_params);
         }
         tx.send(Some(hakai(url, o, action))).unwrap();
     }
