@@ -1,7 +1,6 @@
 extern crate time;
 use std::io::{stdout, Write};
 use std::sync::mpsc::Receiver;
-use time::{Tm, now};
 
 pub struct Indicator {
     pub rx: Receiver<Option<bool>>,

@@ -7,12 +7,11 @@ use getopts::Options;
 use hyper::Client;
 use hyper::status::StatusCode;
 use hyper::client::response::Response;
-use url::{Url, UrlParser};
+use url::Url;
 use std::{env, thread};
 use std::time::Duration;
 use std::io::prelude::*;
 use std::sync::mpsc::{channel, Sender, Receiver};
-use time::now;
 use std::sync::atomic::{AtomicUsize, Ordering, ATOMIC_USIZE_INIT};
 use std::collections::HashMap;
 
@@ -79,7 +78,7 @@ fn hakai_scenario(options: HakaiOption, conf: config::HakaiConfig, tx: Sender<Op
     for action in &conf.actions {
         let host = Url::parse(&conf.domain).unwrap();
         let path = &action.path.to_string();
-        let mut url = UrlParser::new().base_url(&host).parse(path).unwrap();
+        let mut url = host.join(path).unwrap();
         if !conf.query_params.is_empty() {
             let mut new_params = HashMap::new();
             let query_params = conf.query_params.clone();
