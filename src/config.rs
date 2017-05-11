@@ -114,8 +114,8 @@ pub fn replace_names(input: &str, consts: &HashMap<String, String>) -> String {
 
     let result = re.replace_all(input, |caps: &Captures| {
         let mut s = String::new();
-        let org = caps.at(0).unwrap();
-        let vvv = caps.at(1).unwrap();
+        let org = caps.get(0).unwrap().as_str();
+        let vvv = caps.get(1).unwrap().as_str();
         match consts.get(vvv) {
             Some(vv) => s.push_str(vv),
             None => s.push_str(org),
@@ -123,5 +123,5 @@ pub fn replace_names(input: &str, consts: &HashMap<String, String>) -> String {
         s
     });
 
-    result
+    result.to_string()
 }
