@@ -48,8 +48,7 @@ fn hakai(url: url::Url, options: &HakaiOption, action: &config::Action) -> bool 
     let mut res: Response;
 
     let t1 = time::now();
-    res = client.request(method::Method::from_str(action.method.to_uppercase().as_str()).unwrap(),
-                 url)
+    res = client.request(method::Method::from_str(action.method.to_uppercase().as_str()).unwrap(), url)
         .send()
         .unwrap();
     let t2 = time::now();
@@ -60,10 +59,7 @@ fn hakai(url: url::Url, options: &HakaiOption, action: &config::Action) -> bool 
     res.read_to_string(&mut body).unwrap();
 
     if options.verbose {
-        println!("Response: url={}, delta={}[msec], body_size={}[byte]",
-                 url,
-                 diff,
-                 body.len());
+        println!("Response: url={}, delta={}[msec], body_size={}[byte]", url, diff, body.len());
     }
 
     if res.status != StatusCode::Ok {
@@ -81,9 +77,9 @@ fn hakai_scenario(options: HakaiOption, conf: config::HakaiConfig, tx: Sender<Op
         let mut url = host.join(path).unwrap();
         if !conf.query_params.is_empty() {
             let query_params = conf.query_params.clone();
+            url.query_pairs_mut().clear();
             for (k, v) in query_params {
                 url.query_pairs_mut()
-                    .clear()
                     .append_pair(k.as_str(), replace_names(&*v, &conf.consts).as_str());
             }
         }
@@ -105,8 +101,7 @@ fn exec_worker(rx: Receiver<Option<WorkerOption>>) {
 }
 
 fn print_usage(opts: Options) {
-    print!("{}",
-           opts.usage("Usage: rshakai [options] CONFIG_FILE.yaml"));
+    print!("{}", opts.usage("Usage: rshakai [options] CONFIG_FILE.yaml"));
 }
 
 fn main() {

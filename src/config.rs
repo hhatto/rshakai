@@ -77,8 +77,7 @@ impl HakaiConfig {
         if !consts.is_badvalue() {
             let consts = consts.as_hash().unwrap();
             for (k, v) in consts {
-                self.consts.insert(k.as_str().unwrap().to_string(),
-                                   v.as_str().unwrap().to_string());
+                self.consts.insert(k.as_str().unwrap().to_string(), v.as_str().unwrap().to_string());
             }
         }
 
@@ -86,8 +85,7 @@ impl HakaiConfig {
         if !query_params.is_badvalue() {
             let query_params = query_params.as_hash().unwrap();
             for (k, v) in query_params {
-                self.query_params.insert(k.as_str().unwrap().to_string(),
-                                         v.as_str().unwrap().to_string());
+                self.query_params.insert(k.as_str().unwrap().to_string(), v.as_str().unwrap().to_string());
             }
         }
     }
